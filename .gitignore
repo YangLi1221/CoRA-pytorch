@@ -243,6 +243,8 @@ dmypy.json
 #
 NYT_52w.sh
 outputs/
-data/
+data/nyt52w_rawdata/
+data/preprocessed_nyt10/
+data/preprocessed_nyt52w/
 nyt10/
 data_sampler/NYT_52w_sampler.py
