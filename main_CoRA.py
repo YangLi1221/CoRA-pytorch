@@ -148,7 +148,6 @@ if __name__ == "__main__":
     parser.add_argument('--model_name', default='CoRA', type=str, help='the name of end-to-end model')
     parser.add_argument('--gpu', default='1', type=str, help='gpu to use')
     parser.add_argument('--data_path', default='./data/', type=str, help='path to load data')
-    parser.add_argument('--data_num', default='57w', type=str, help='57w or 52w')
     parser.add_argument('--model_dir', default='./outputs/ckpt/CoRA/', type=str, help='path to store or load model')
     parser.add_argument('--is_training', default=False, action='store_true', help='Bool type for training or testing')
     parser.add_argument('--batch_train_size', default=160, type=int, help='entity numbers used each training time')
