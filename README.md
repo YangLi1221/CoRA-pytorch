@@ -35,7 +35,7 @@ For CoRA,
 
 Run various evaluation by specifying `--mode` in commandline, see the paper for detailed description for these evaluation methods.
 
-    python main_CoRA.py --mode [test method: pr, pone, ptwo, pall] --test-single --test_start_ckpt [ckpt number to be tested] --model [cnn_hier or pcnn_hier]
+    python main_CoRA.py --mode [test method: pr, pone, ptwo, pall, ]
 
 The logits are saved at `./outputs/logits/`. To see the PR curve, run the following command which directly `show()` the curve, and you can adjust the codes in `./scripts/show_pr.py` for saving the image as pdf file or etc. :
     

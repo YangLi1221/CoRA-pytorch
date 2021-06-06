@@ -126,18 +126,95 @@ def test(args, test_loader, word_embedding_matrix, model_path):
             sys.stdout.flush()
             y_true.append(bag_rel[:, 1:])
             y_pred.append(prob[:, 1:])
-        y_true = torch.cat(y_true).reshape(-1).detach().cpu().numpy()
-        y_pred = torch.cat(y_pred).reshape(-1).detach().cpu().numpy()
+        y_true_cat = torch.cat(y_true).reshape(-1).detach().cpu().numpy()
+        y_pred_cat = torch.cat(y_pred).reshape(-1).detach().cpu().numpy()
     # AUC score
-    auc = metrics.average_precision_score(y_true, y_pred)
+    auc = metrics.average_precision_score(y_true_cat, y_pred_cat)
     print("\n[TEST] auc: {}".format(auc))
     # P@N
-    order = np.argsort(-y_pred)
-    p100 = (y_true[order[:100]]).mean() * 100
-    p200 = (y_true[order[:200]]).mean() * 100
-    p300 = (y_true[order[:300]]).mean() * 100
-    print("P@100: {0:.1f}, P@200: {1:.1f}, P@300: {2:.1f}, Mean: {3:.1f}".format(p100, p200, p300,
-                                                                                 (p100 + p200 + p300) / 3))
+    if args.mode == 'pr' or args.mode == 'pone' or args.mode == 'ptwo':
+        order = np.argsort(-y_pred_cat)
+        p100 = (y_true_cat[order[:100]]).mean() * 100
+        p200 = (y_true_cat[order[:200]]).mean() * 100
+        p300 = (y_true_cat[order[:300]]).mean() * 100
+        print("P@100: {0:.1f}, P@200: {1:.1f}, P@300: {2:.1f}, Mean: {3:.1f}".format(p100, p200, p300,
+                                                                                    (p100 + p200 + p300) / 3))
+    elif args.mode == 'hit_k_100' or args.mode == 'hit_k_200':
+        exclude_na_output = torch.cat(y_pred, dim=0).detach().cpu().numpy()
+        exclude_na_label = torch.cat(y_true, dim=0).detach().cpu().numpy()
+        calculate_hitsk(args, exclude_na_output, exclude_na_label)
+    
+
+
+def calculate_hitsk(args, exclude_na_output, exclude_na_label):
+    f = open(os.path.join(args.data_path, "raw_data/relation2id.txt"), "r")
+    content = f.readlines()[1:]
+    id2rel = {}
+    for i in content:
+        rel, rid = i.strip().split()
+        id2rel[(int)(rid)] = rel
+    f.close()
+
+    fewrel = {}
+    if args.mode == "hit_k_100":
+        f = open(os.path.join(args.data_path, "rel100.txt"), "r")
+    else:
+        f = open(os.path.join(args.data_path, "rel200.txt"), "r")
+    content = f.readlines()
+    for i in content:
+        fewrel[i.strip()] = 1
+    f.close()
+
+    ss = 0
+    ss10 = 0
+    ss15 = 0
+    ss20 = 0
+
+
+    ss_rel = {}
+    ss10_rel = {}
+    ss15_rel = {}
+    ss20_rel = {}
+    
+    for j, label in zip(exclude_na_output, exclude_na_label):
+        score = None
+        num = None
+        for ind, ll in enumerate(label):
+            if ll > 0:
+                score = j[ind]
+                num = ind
+                break
+        if num is None:
+            continue
+        if id2rel[num+1] in fewrel:
+            ss += 1.0
+            mx = 0
+            for sc in j:
+                if sc>score:
+                    mx = mx + 1
+            if not num in ss_rel:
+                ss_rel[num] = 0
+                ss10_rel[num] = 0 
+                ss15_rel[num] = 0
+                ss20_rel[num] = 0
+            ss_rel[num] += 1.0
+            if mx < 10:
+                ss10 += 1.0
+                ss10_rel[num] += 1.0
+            if mx < 15:
+                ss15 += 1.0
+                ss15_rel[num] += 1.0
+            if mx < 20:
+                ss20 += 1.0
+                ss20_rel[num] += 1.0
+    print("mi")
+    print(ss10/ss)
+    print(ss15/ss)
+    print(ss20/ss)
+    print("ma")
+    print((np.array([ss10_rel[i]/ss_rel[i] for i in ss_rel])).mean())
+    print((np.array([ss15_rel[i]/ss_rel[i] for i in ss_rel])).mean())
+    print((np.array([ss20_rel[i]/ss_rel[i] for i in ss_rel])).mean())
 
 
 
@@ -146,6 +223,7 @@ def test(args, test_loader, word_embedding_matrix, model_path):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Code for CoRA in pytorch')
     parser.add_argument('--model_name', default='CoRA', type=str, help='the name of end-to-end model')
+    parser.add_argument('--mode', default='pr', type=str, help='test metric to use')
     parser.add_argument('--gpu', default='1', type=str, help='gpu to use')
     parser.add_argument('--data_path', default='./data/', type=str, help='path to load data')
     parser.add_argument('--model_dir', default='./outputs/ckpt/CoRA/', type=str, help='path to store or load model')
@@ -178,8 +256,7 @@ if __name__ == "__main__":
     else:
         test_loader = get_data_loader(args, shuffle=False, batch_size=args.batch_test_size)
         model_path = args.model_dir + args.model_name + '_'
-        for i in range(40): # CoRA 17
-        # i = 13
+        for i in range(40): 
             print("\n === Test: {} epoch===".format(i))
             test(args, test_loader, word_embedding_matrix, model_path + str(i) + '.pt')
 

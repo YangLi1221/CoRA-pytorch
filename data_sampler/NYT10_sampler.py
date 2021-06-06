@@ -21,7 +21,16 @@ class NYT10_data_sampler(object):
 
         if os.path.exists(os.path.join(self.processed_data_path, self.suffix + '_preprocessed.npy')):
             self._init_relation()
-            self.data = np.load(os.path.join(self.processed_data_path, self.suffix + '_preprocessed.npy'), allow_pickle=True)
+            # self.data = np.load(os.path.join(self.processed_data_path, self.suffix + '_preprocessed.npy'), allow_pickle=True)
+
+            if self.is_training:
+                self.data = np.load(os.path.join(self.processed_data_path, self.suffix + '_preprocessed.npy'), allow_pickle=True)
+            elif args.mode == 'pr' or args.mode == 'hit_k_100' or args.mode == 'hit_k_200':
+                self.data = np.load(os.path.join(self.processed_data_path, self.suffix + '_preprocessed.npy'), allow_pickle=True)
+            elif args.mode == 'pone':
+                self.data = np.load(os.path.join(self.processed_data_path, self.suffix + '_preprocessed_' + str(args.mode) + '.npy'), allow_pickle=True)
+            else:
+                self.data = np.load(os.path.join(self.processed_data_path, self.suffix + '_preprocessed_' + str(args.mode) + '.npy'), allow_pickle=True)
         else:
             if not os.path.exists(self.processed_data_path):
                 os.makedirs(self.processed_data_path)
