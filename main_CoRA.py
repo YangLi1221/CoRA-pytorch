@@ -228,6 +228,7 @@ if __name__ == "__main__":
     parser.add_argument('--data_path', default='./data/', type=str, help='path to load data')
     parser.add_argument('--model_dir', default='./outputs/ckpt/CoRA/', type=str, help='path to store or load model')
     parser.add_argument('--is_training', default=False, action='store_true', help='Bool type for training or testing')
+    parser.add_argument('--test_pretrained', default=False, action='store_true', help='test the pretrained model')
     parser.add_argument('--batch_train_size', default=160, type=int, help='entity numbers used each training time')
     parser.add_argument('--batch_test_size', default=262, type=int, help='entity numbers used each testing time')
     parser.add_argument('--max_epoch', default=40, type=int, help='maximum of training epochs')
@@ -255,9 +256,14 @@ if __name__ == "__main__":
         train(train_loader, word_embedding_matrix, args)
     else:
         test_loader = get_data_loader(args, shuffle=False, batch_size=args.batch_test_size)
-        model_path = args.model_dir + args.model_name + '_'
-        for i in range(40): 
-            print("\n === Test: {} epoch===".format(i))
-            test(args, test_loader, word_embedding_matrix, model_path + str(i) + '.pt')
+        if args.test_pretrained:
+            print("\n === Test: Pretrained Model ===")
+            model_path = './outputs/ckpt/'
+            test(args, test_loader, word_embedding_matrix, model_path + 'CoRA_pretrained.pt')
+        else:
+            model_path = args.model_dir + args.model_name + '_'
+            for i in range(40): 
+                print("\n === Test: {} epoch===".format(i))
+                test(args, test_loader, word_embedding_matrix, model_path + str(i) + '.pt')
 
 

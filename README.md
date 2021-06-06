@@ -35,20 +35,11 @@ For CoRA,
 
 Run various evaluation by specifying `--mode` in commandline, see the paper for detailed description for these evaluation methods.
 
-    python main_CoRA.py --mode [test method: pr, pone, ptwo, pall, ]
-
-The logits are saved at `./outputs/logits/`. To see the PR curve, run the following command which directly `show()` the curve, and you can adjust the codes in `./scripts/show_pr.py` for saving the image as pdf file or etc. :
-    
-    python script/show_pr.py [path/to/generated .npy logits file from evaluation]
+    python main_CoRA.py --mode [test method: pr, pone, ptwo, pall, hit_k_100, hit_k_200]
 
 ## Pretrained models
 
-The pretrained models is already saved at `./outputs/ckpt/`. To directly evaluate on them, run the following command:
+The pretrained models is already saved at `./outputs/ckpt/`.
 
-    PYTHONPATH=. python script/evaluate.py --mode [test method: hit_k_100, hit_k_200, pr, pone, ptwo, pall] --test_single --test_start_ckpt 0 --model [cnn_hier or pcnn_hier]
+    python main_CoRA.py --mode [test method: pr, pone, ptwo, pall, hit_k_100, hit_k_200] --test_pretrained
 
-And PR curves can be generated same way as above.
-
-## The results of the released checkpoints
-
-As this toolkit is reconstructed based on the original code and the checkpoints are retrained on this toolkit, the results of the released checkpoints are comparable with the reported ones.
