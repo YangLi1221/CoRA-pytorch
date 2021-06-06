@@ -20,11 +20,9 @@ The model is implemented using tensorflow. The versions of packages used are sho
 * numpy = 1.19.2
 * scipy = 1.5.2
 
-## Initialization
+## Data preparation
 
-First unzip the `./raw_data/data.zip` and put all the files under `./raw_data`. Once the original raw text corpus data is in `./raw_data`, run
-
-    python script/initial_CoRA.py
+First unzip the `./raw_data/data.zip` and put all the files under `./raw_data`. Once the original raw text corpus data is in `./raw_data`.
 
 ## Train the model
 For CoRA,
