@@ -9,10 +9,7 @@ class NYT10_dataset(Dataset):
 
     def __init__(self, args):
         super(NYT10_dataset, self).__init__()
-        if args.data_num == '52w':
-            self.dataset = NYT_52w_data_sampler(args)
-        else:
-            self.dataset = NYT10_data_sampler(args)
+        self.dataset = NYT10_data_sampler(args)
         self.is_training = args.is_training
 
     def __len__(self):

@@ -150,7 +150,7 @@ if __name__ == "__main__":
     parser.add_argument('--data_path', default='./data/', type=str, help='path to load data')
     parser.add_argument('--data_num', default='57w', type=str, help='57w or 52w')
     parser.add_argument('--model_dir', default='./outputs/ckpt/CoRA/', type=str, help='path to store or load model')
-    parser.add_argument('--is_training', default=False, type=bool, help='Training or Testing')
+    parser.add_argument('--is_training', default=False, action='store_true', help='Bool type for training or testing')
     parser.add_argument('--batch_train_size', default=160, type=int, help='entity numbers used each training time')
     parser.add_argument('--batch_test_size', default=262, type=int, help='entity numbers used each testing time')
     parser.add_argument('--max_epoch', default=40, type=int, help='maximum of training epochs')
@@ -169,11 +169,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
+    print('is_training: ', args.is_training)
 
-    if args.data_num == '57w':
-        word_embedding_matrix = pickle.load(open(os.path.join(args.data_path, 'initial_vectors/init_vec'), 'rb'))['wordvec']
-    else:
-        word_embedding_matrix = np.load('./data/nyt52w_rawdata/nyt_52w_glove.npy', allow_pickle=True)
+    word_embedding_matrix = pickle.load(open(os.path.join(args.data_path, 'initial_vectors/init_vec'), 'rb'))['wordvec']
+
     if args.is_training:
         train_loader = get_data_loader(args, shuffle=True, batch_size=args.batch_train_size)
         train(train_loader, word_embedding_matrix, args)
